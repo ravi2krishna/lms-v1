@@ -1,25 +1,34 @@
-pipeline{
-  agent {
-    node{
-      label 'slave'
-    }
-  }
-  stages {
-    stage('Notification') {
-      steps {
-          slackSend channel: 'deployment-team', color: '#439FE0', message: 'Ecomm deployment job started', teamDomain: 'project-ste2943', tokenCredentialId: 'slack'
+pipeline {
+agent any 
+stages {
+    stage('remove old container') {
+        steps {
+            script{
+                def containerName = "frontend"
+                def checkContainer = sh(script: "docker ps -a --format '{{.Names}}' | grep -w ${containerName}", returnStatus: true)
+                if (checkContainer == 0){
+                    echo "container ${containerName} exists. removing...."
+                    sh "docker container rm -f ${containerName}"
+                } else {
+                    echo "Container ${containerName} does not exist. Skipping removeal..."
+                }
             }
-        }
-    stage ('Sonar analysis') {
-      steps {
-        sh 'cd webapp'
-        sh 'docker run --rm -e SONAR_HOST_URL="http://54.67.42.46:9000" -e SONAR_SCANNER_OPTS="-Dsonar.projectKey=lms" -e SONAR_TOKEN="sqp_9adea34a8a04d0749d54300b71f729620e4506e9" -v ".:/usr/src" sonarsource/sonar-scanner-cli'
       }
     }
-    stage('Email Notification') {
-      steps {
-          emailext body: 'Ecomm application deployed successfully into Prod Environment', subject: 'Ecomm Deployment', to: 'murali@digitaledify.ai'
-          }
-      }  
+    stage('Image Build') {
+        steps {
+           sh 'cd webapp && docker build -t web .'
+      }
+    }
+    stage('Running Container') {
+        steps {
+           sh 'docker container run -dt --name frontend --network lmsnetwork -p 80:80 web'
+      }
+    }
+    stage('build status') {
+        steps {
+           sh 'echo backend deployed'
+      }
+    }
   }
 }
