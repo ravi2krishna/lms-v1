@@ -19,6 +19,7 @@ services:
     environment:
       - MODE=local
       - PORT=3000
+      - DATABASE_URL=postgresql://postgres:itjustworks@local-db:5432/mydb
     ports:
       - "3000:3000"
     restart: on-failure
