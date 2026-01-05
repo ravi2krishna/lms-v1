@@ -22,6 +22,7 @@ pipeline {
         stage('Deploy Frontend - dev') {
             steps {
                 echo 'Deploying Project'
+                sh ' sudo docker container rm -f web'
                 sh 'sudo docker container run -dt --name web -p 8081:80 ravi2krishna/lms-fe'
                 // sh 'sudo rm -rf /var/www/html/*' 
                 // sh 'sudo cp -r webapp/dist/* /var/www/html'
