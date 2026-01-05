@@ -3,18 +3,41 @@ pipeline {
     stages {
         stage('Code Analysis') {
             steps {
-               sh 'uname' 
+               echo 'Sonar Analysis' 
+               sh 'sudo docker run --rm -e SONAR_HOST_URL="http://18.191.239.141:9000" -v ".:/usr/src" sonarsource/sonar-scanner-cli -e SONAR_TOKEN="sqp_4a0e378bddba5dad2621e3e8e63d4e785b2820bc" -Dsonar.projectKey=lms'
             }
         }
-        stage('Build') {
+        stage('Build - dev') {
             steps {
-                sh 'cat /etc/os-release'
+                echo 'Building Project' 
+                sh 'cd webapp && npm install && npm run build'
             }
         }
-        stage('Deploy Frontend') {
+        stage('Build - qa') {
             steps {
-                sh 'sudo docker image ls'
+                echo 'Building Project On Docker' 
+                sh 'cd webapp && sudo docker build -t ravi2krishna/lms-fe .'
             }
         }
+        stage('Deploy Frontend - dev') {
+            steps {
+                echo 'Deploying Project'
+                sh 'sudo rm -rf /var/www/html/*' 
+                sh 'sudo cp -r webapp/dist/* /var/www/html'
+            }
+        }
+        stage('Deploy Frontend - k8s') {
+            steps {
+                echo 'Deploying Project On Kubernetes'
+                sh 'kubectl' 
+            }
+        }
+        stage('Cleanup Workspace') {
+            steps {
+                echo 'Cleaning Up Old Resources'
+                cleanWs()
+            }
+        }
+
     }
 }
