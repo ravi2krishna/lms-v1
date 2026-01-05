@@ -10,7 +10,15 @@ pipeline {
         stage('Build - dev') {
             steps {
                 echo 'Building Project' 
-                sh 'cd webapp && npm install && npm run build'
+                sh '''
+                export NVM_DIR="$HOME/.nvm"
+                [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+
+                nvm use 20
+                node -v
+                npm -v
+                cd webapp && npm install && npm run build
+                '''
             }
         }
         stage('Build - qa') {
@@ -22,8 +30,8 @@ pipeline {
         stage('Deploy Frontend - dev') {
             steps {
                 echo 'Deploying Project'
-                sh 'sudo rm -rf /var/www/html/*' 
-                sh 'sudo cp -r webapp/dist/* /var/www/html'
+                // sh 'sudo rm -rf /var/www/html/*' 
+                // sh 'sudo cp -r webapp/dist/* /var/www/html'
             }
         }
         stage('Deploy Frontend - k8s') {
