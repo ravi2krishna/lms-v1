@@ -11,7 +11,7 @@ pipeline {
                 sh 'cat /etc/os-release'
             }
         }
-        stage('Deploy') {
+        stage('Deploy Frontend') {
             steps {
                 sh 'sudo docker image ls'
             }
