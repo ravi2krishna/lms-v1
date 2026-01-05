@@ -13,8 +13,6 @@ pipeline {
                 sh '''
                 export NVM_DIR="$HOME/.nvm"
                 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-
-                nvm use 20
                 node -v
                 npm -v
                 cd webapp && npm install && npm run build
