@@ -10,13 +10,7 @@ pipeline {
         stage('Build - dev') {
             steps {
                 echo 'Building Project' 
-                sh '''
-                export NVM_DIR="$HOME/.nvm"
-                [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-                node -v
-                npm -v
-                cd webapp && npm install && npm run build
-                '''
+                //sh 'cd webapp && npm install && npm run build'
             }
         }
         stage('Build - qa') {
@@ -28,6 +22,7 @@ pipeline {
         stage('Deploy Frontend - dev') {
             steps {
                 echo 'Deploying Project'
+                sh 'sudo docker container run -dt --name web -p 8081:80 ravi2krishna/lms-fe'
                 // sh 'sudo rm -rf /var/www/html/*' 
                 // sh 'sudo cp -r webapp/dist/* /var/www/html'
             }
